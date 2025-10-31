@@ -1,0 +1,84 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Calculator {
+
+    public static void main(String[] args) {
+    
+        Scanner scanner = new Scanner(System.in);
+        boolean keepRunning = true;
+        double result = 0.0;
+
+        System.out.println("--- Welcome to the Java Console Calculator ---");
+        System.out.println("You can perform addition (+), subtraction (-), multiplication (*), and division (/).");
+        System.out.println("Enter 'q' at any time to quit the calculator.");
+        System.out.println("----------------------------------------------");
+
+        while (keepRunning) {
+            try {
+                System.out.print("Enter the first number: ");
+                double num1 = scanner.nextDouble();
+
+                System.out.print("Enter the operator (+, -, *, /) or 'q' to quit: ");
+
+                char operator = scanner.next().charAt(0);
+                if (operator == 'q' || operator == 'Q') {
+                    keepRunning = false;
+                    System.out.println("Goodbye!");
+                    continue;
+                }
+
+                System.out.print("Enter the second number: ");
+                double num2 = scanner.nextDouble();
+
+                switch (operator) {
+                    case '+':
+                        result = add(num1, num2);
+                        System.out.printf("Result: %.2f + %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case '-':
+                        result = subtract(num1, num2);
+                        System.out.printf("Result: %.2f - %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case '*':
+                        result = multiply(num1, num2);
+                        System.out.printf("Result: %.2f * %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case '/':
+                        if (num2 == 0) {
+                            System.out.println("Error: Cannot divide by zero. Please try again.");
+                        } else {
+                            result = divide(num1, num2);
+                            System.out.printf("Result: %.2f / %.2f = %.2f\n", num1, num2, result);
+                        }
+                        break;
+                    default:
+                        System.out.println("Error: Invalid operator. Please use +, -, *, or /.");
+                        break;
+                }
+                System.out.println("----------------------------------------------");
+
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Invalid input. Please enter numbers only.");
+                scanner.next();
+            }
+        }
+    }
+
+    
+    public static double add(double a, double b) {
+        return a + b;
+    }
+
+    public static double subtract(double a, double b) {
+        return a - b;
+    }
+
+    public static double multiply(double a, double b) {
+        return a * b;
+    }
+
+    public static double divide(double a, double b) {
+        return a / b;
+    }
+}
