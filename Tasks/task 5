@@ -1,0 +1,58 @@
+import java.util.*;
+
+class Account {
+    String name;
+    int id;
+    double balance;
+    List<String> history = new ArrayList<>();
+
+    Account(String name, int id, double balance) {
+        this.name = name;
+        this.id = id;
+        this.balance = balance;
+        history.add("Account created with balance: " + balance);
+    }
+
+    void deposit(double amount) {
+        balance += amount;
+        history.add("Deposited: " + amount);
+    }
+
+    void withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            history.add("Withdrew: " + amount);
+        } else {
+            history.add("Failed withdrawal attempt: " + amount);
+            System.out.println("Insufficient balance");
+        }
+    }
+
+    void showBalance() {
+        System.out.println("Current Balance: " + balance);
+    }
+
+    void showHistory() {
+        for (String h : history) System.out.println(h);
+    }
+}
+
+public class BankApp {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Account acc = new Account("Sai", 101, 1000);
+        while (true) {
+            System.out.println("1.Deposit  2.Withdraw  3.Balance  4.History  5.Exit");
+            int ch = sc.nextInt();
+            if (ch == 1) {
+                System.out.print("Amount: ");
+                acc.deposit(sc.nextDouble());
+            } else if (ch == 2) {
+                System.out.print("Amount: ");
+                acc.withdraw(sc.nextDouble());
+            } else if (ch == 3) acc.showBalance();
+            else if (ch == 4) acc.showHistory();
+            else if (ch == 5) break;
+        }
+    }
+}
