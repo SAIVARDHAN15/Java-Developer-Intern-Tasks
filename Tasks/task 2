@@ -1,0 +1,213 @@
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Iterator;
+import java.util.Scanner;
+
+class Student {
+    private int id;
+    private String name;
+    private double marks;
+
+    public Student(int id, String name, double marks) {
+        this.id = id;
+        this.name = name;
+        this.marks = marks;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getMarks() {
+        return marks;
+    }
+
+    public void setMarks(double marks) {
+        this.marks = marks;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Marks: " + String.format("%.2f", marks);
+    }
+}
+
+public class StudentRecordSystem {
+
+    private static ArrayList<Student> studentList = new ArrayList<>();
+    private static int nextId = 1;
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        boolean running = true;
+
+        while (running) {
+            printMenu();
+            int choice = -1;
+
+            try {
+                choice = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); 
+                continue;
+            }
+
+            scanner.nextLine(); 
+
+            switch (choice) {
+                case 1:
+                    addStudent();
+                    break;
+                case 2:
+                    viewStudents();
+                    break;
+                case 3:
+                    updateStudent();
+                    break;
+                case 4:
+                    deleteStudent();
+                    break;
+                case 5:
+                    running = false;
+                    System.out.println("Exiting system. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+            }
+            System.out.println("-----------------------------------");
+        }
+        scanner.close();
+    }
+
+    private static void printMenu() {
+        System.out.println("\n--- Student Record Management System ---");
+        System.out.println("1. Add New Student");
+        System.out.println("2. View All Students");
+        System.out.println("3. Update Student Record");
+        System.out.println("4. Delete Student Record");
+        System.out.println("5. Exit");
+        System.out.print("Enter your choice (1-5): ");
+    }
+
+    private static void addStudent() {
+        String name;
+        double marks = -1;
+
+        System.out.print("Enter student name: ");
+        name = scanner.nextLine();
+
+        while (marks < 0 || marks > 100) {
+            try {
+                System.out.print("Enter student marks (0-100): ");
+                marks = scanner.nextDouble();
+                if (marks < 0 || marks > 100) {
+                    System.out.println("Marks must be between 0 and 100.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); 
+            }
+        }
+        
+        Student newStudent = new Student(nextId, name, marks);
+        studentList.add(newStudent);
+        System.out.println("Student added successfully with ID: " + nextId);
+        nextId++;
+    }
+
+    private static void viewStudents() {
+        if (studentList.isEmpty()) {
+            System.out.println("No student records found.");
+            return;
+        }
+
+        System.out.println("\n--- List of All Students ---");
+        for (Student student : studentList) {
+            System.out.println(student);
+        }
+    }
+
+    private static Student findStudentById(int id) {
+        for (Student student : studentList) {
+            if (student.getId() == id) {
+                return student;
+            }
+        }
+        return null;
+    }
+
+    private static void updateStudent() {
+        System.out.print("Enter student ID to update: ");
+        int id = -1;
+        try {
+            id = scanner.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid ID format.");
+            scanner.next();
+            return;
+        }
+        scanner.nextLine(); 
+
+        Student student = findStudentById(id);
+        if (student == null) {
+            System.out.println("Student with ID " + id + " not found.");
+            return;
+        }
+
+        System.out.println("Found student: " + student);
+        System.out.print("Enter new name (or press Enter to keep '" + student.getName() + "'): ");
+        String newName = scanner.nextLine();
+        if (!newName.isEmpty()) {
+            student.setName(newName);
+        }
+
+        System.out.print("Enter new marks (or press Enter to keep " + student.getMarks() + "): ");
+        String marksInput = scanner.nextLine();
+        if (!marksInput.isEmpty()) {
+            try {
+                double newMarks = Double.parseDouble(marksInput);
+                if (newMarks >= 0 && newMarks <= 100) {
+                    student.setMarks(newMarks);
+                } else {
+                    System.out.println("Invalid marks. Kept original marks.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format. Kept original marks.");
+            }
+        }
+
+        System.out.println("Student record updated successfully:");
+        System.out.println(student);
+    }
+
+    private static void deleteStudent() {
+        System.out.print("Enter student ID to delete: ");
+        int id = -1;
+        try {
+            id = scanner.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid ID format.");
+            scanner.next();
+            return;
+        }
+        scanner.nextLine(); 
+
+        Student student = findStudentById(id);
+        if (student == null) {
+            System.out.println("Student with ID " + id + " not found.");
+            return;
+        }
+        
+        studentList.remove(student);
+        System.out.println("Student record deleted successfully.");
+    }
+}
