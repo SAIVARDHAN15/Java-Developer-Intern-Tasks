@@ -1,0 +1,66 @@
+import java.io.*;
+import java.util.*;
+
+public class NotesApp {
+    static Scanner sc = new Scanner(System.in);
+    static String folder = "notes";
+
+    public static void main(String[] args) throws Exception {
+        File dir = new File(folder);
+        if (!dir.exists()) dir.mkdir();
+        while (true) {
+            System.out.println("1.Create New Note  2.Show Notes  3.Write Note  4.Read Note  5.Exit");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 1) createNote();
+            else if (ch == 2) showNotes();
+            else if (ch == 3) writeNote();
+            else if (ch == 4) readNote();
+            else if (ch == 5) break;
+        }
+    }
+
+    static void createNote() throws Exception {
+        System.out.print("Enter file name: ");
+        String name = sc.nextLine();
+        File f = new File(folder + "/" + name + ".txt");
+        if (f.createNewFile()) System.out.println("Note created");
+        else System.out.println("Note already exists");
+    }
+
+    static void showNotes() {
+        File dir = new File(folder);
+        String[] files = dir.list();
+        if (files != null && files.length > 0)
+            for (String s : files) System.out.println(s);
+        else System.out.println("No notes found");
+    }
+
+    static void writeNote() throws Exception {
+        System.out.print("Enter file name: ");
+        String name = sc.nextLine();
+        FileWriter fw = new FileWriter(folder + "/" + name + ".txt", true);
+        System.out.println("Enter text (type 'exit' to stop):");
+        while (true) {
+            String line = sc.nextLine();
+            if (line.equalsIgnoreCase("exit")) break;
+            fw.write(line + "\n");
+        }
+        fw.close();
+        System.out.println("Saved");
+    }
+
+    static void readNote() throws Exception {
+        System.out.print("Enter file name: ");
+        String name = sc.nextLine();
+        File f = new File(folder + "/" + name + ".txt");
+        if (!f.exists()) {
+            System.out.println("Note not found");
+            return;
+        }
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        String line;
+        while ((line = br.readLine()) != null) System.out.println(line);
+        br.close();
+    }
+}
