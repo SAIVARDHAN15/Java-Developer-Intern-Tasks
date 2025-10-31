@@ -1,0 +1,70 @@
+class Book {
+    String title;
+    String author;
+    boolean isIssued;
+
+    Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+        this.isIssued = false;
+    }
+}
+
+class User {
+    String name;
+    int id;
+
+    User(String name, int id) {
+        this.name = name;
+        this.id = id;
+    }
+}
+
+class Library {
+    Book[] books;
+    User[] users;
+    int bookCount;
+    int userCount;
+
+    Library(int bookSize, int userSize) {
+        books = new Book[bookSize];
+        users = new User[userSize];
+    }
+
+    void addBook(String title, String author) {
+        books[bookCount++] = new Book(title, author);
+    }
+
+    void addUser(String name, int id) {
+        users[userCount++] = new User(name, id);
+    }
+
+    void issueBook(String title, int userId) {
+        for (Book b : books) {
+            if (b != null && b.title.equals(title) && !b.isIssued) {
+                b.isIssued = true;
+                System.out.println("Book issued to user " + userId);
+                return;
+            }
+        }
+        System.out.println("Book not available");
+    }
+
+    void returnBook(String title) {
+        for (Book b : books) {
+            if (b != null && b.title.equals(title) && b.isIssued) {
+                b.isIssued = false;
+                System.out.println("Book returned");
+                return;
+            }
+        }
+        System.out.println("Book not found or not issued");
+    }
+
+    void showBooks() {
+        for (Book b : books) {
+            if (b != null)
+                System.out.println(b.title + " by " + b.author + " - " + (b.isIssued ? "Issued" : "Available"));
+        }
+    }
+}
