@@ -1,0 +1,174 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class DatabaseManager {
+
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/postgres";
+    private static final String DRIVER = "org.postgresql.Driver";
+    private static final String USER = "admin";
+    private static final String PASS = "password";
+
+    private Connection connection = null;
+
+    public void connect() {
+        try {
+            System.out.println("Attempting to load JDBC driver...");
+            Class.forName(DRIVER);
+            System.out.println("Connecting to database...");
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+            connection.setAutoCommit(true);
+            System.out.println("Connection successful! Database details: " + connection.getMetaData().getDatabaseProductName());
+        } catch (ClassNotFoundException e) {
+            System.err.println("JDBC Driver not found. Please check your CLASSPATH.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Connection failed! Check DB_URL, USER, and PASS.");
+            e.printStackTrace();
+        }
+    }
+
+    public void disconnect() {
+        if (connection != null) {
+            try {
+                connection.close();
+                System.out.println("\nDatabase connection closed.");
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }
+
+    public void createTable() {
+        if (connection == null) return;
+        String createSql = "";
+
+        if (DRIVER.contains("postgresql")) {
+            createSql = "CREATE TABLE IF NOT EXISTS EMPLOYEE ( " +
+                        "ID SERIAL PRIMARY KEY, " +
+                        "NAME VARCHAR(100) NOT NULL, " +
+                        "SALARY NUMERIC(10, 2) NOT NULL)";
+        } else {
+            createSql = "CREATE TABLE IF NOT EXISTS EMPLOYEE ( " +
+                        "ID INT AUTO_INCREMENT PRIMARY KEY, " +
+                        "NAME VARCHAR(100) NOT NULL, " +
+                        "SALARY DECIMAL(10, 2) NOT NULL)";
+        }
+
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(createSql);
+            System.out.println("\n[CRUD: CREATE] Table 'EMPLOYEE' ensured to exist.");
+        } catch (SQLException e) {
+            System.err.println("Error creating table: " + e.getMessage());
+        }
+    }
+
+    public void insertData(String name, double salary) {
+        if (connection == null) return;
+        String insertSql = "INSERT INTO EMPLOYEE (NAME, SALARY) VALUES (?, ?)";
+
+        try (PreparedStatement pStmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+            pStmt.setString(1, name);
+            pStmt.setDouble(2, salary);
+
+            int rowsAffected = pStmt.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet rs = pStmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        System.out.printf("[CRUD: INSERT] Added new employee: %s (ID: %d)\n", name, rs.getInt(1));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting data: " + e.getMessage());
+        }
+    }
+
+    public void viewData() {
+        if (connection == null) return;
+        String selectSql = "SELECT ID, NAME, SALARY FROM EMPLOYEE ORDER BY ID";
+        System.out.println("\n--- Current Employee Data (CRUD: READ) ---");
+
+        try (PreparedStatement pStmt = connection.prepareStatement(selectSql);
+             ResultSet rs = pStmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("ID");
+                String name = rs.getString("NAME");
+                double salary = rs.getDouble("SALARY");
+                System.out.printf("ID: %-4d Name: %-15s Salary: $%.2f\n", id, name, salary);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error viewing data: " + e.getMessage());
+        }
+    }
+
+    public void updateData(int id, double newSalary) {
+        if (connection == null) return;
+        String updateSql = "UPDATE EMPLOYEE SET SALARY = ? WHERE ID = ?";
+
+        try (PreparedStatement pStmt = connection.prepareStatement(updateSql)) {
+            pStmt.setDouble(1, newSalary);
+            pStmt.setInt(2, id);
+
+            int rowsAffected = pStmt.executeUpdate();
+            System.out.printf("\n[CRUD: UPDATE] ID %d updated. Rows affected: %d\n", id, rowsAffected);
+        } catch (SQLException e) {
+            System.err.println("Error updating data: " + e.getMessage());
+        }
+    }
+
+    public void deleteData(int id) {
+        if (connection == null) return;
+        String deleteSql = "DELETE FROM EMPLOYEE WHERE ID = ?";
+
+        try (PreparedStatement pStmt = connection.prepareStatement(deleteSql)) {
+            pStmt.setInt(1, id);
+
+            int rowsAffected = pStmt.executeUpdate();
+            System.out.printf("\n[CRUD: DELETE] ID %d deleted. Rows affected: %d\n", id, rowsAffected);
+        } catch (SQLException e) {
+            System.err.println("Error deleting data: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        DatabaseManager manager = new DatabaseManager();
+
+        try {
+            manager.connect();
+
+            manager.createTable();
+
+            System.out.println("\n--- Inserting Initial Data ---");
+            manager.insertData("Alice Johnson", 75000.00);
+            manager.insertData("Bob Smith", 55000.50);
+            manager.insertData("Charlie Brown", 90000.00);
+
+            manager.viewData();
+
+            manager.updateData(1, 80000.00);
+
+            manager.viewData();
+
+            manager.deleteData(2);
+
+            manager.viewData();
+
+        } finally {
+            manager.disconnect();
+        }
+    }
+
+    private void executeStatement(String sql) {
+        if (connection == null) return;
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            System.err.println("Error executing statement: " + e.getMessage());
+        }
+    }
+}
