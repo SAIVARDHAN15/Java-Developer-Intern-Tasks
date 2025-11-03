@@ -1,0 +1,69 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class TodoListApp {
+    private DefaultListModel<String> taskListModel;
+    private JList<String> taskList;
+    private JTextField taskInput;
+
+    public TodoListApp() {
+        JFrame frame = new JFrame("To-Do List");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
+        frame.setLayout(new BorderLayout(10, 10));
+
+        taskInput = new JTextField();
+        taskInput.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        JButton addButton = new JButton("Add Task");
+        JButton deleteButton = new JButton("Delete Task");
+
+        addButton.setFocusPainted(false);
+        deleteButton.setFocusPainted(false);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(addButton);
+        buttonPanel.add(deleteButton);
+
+        taskListModel = new DefaultListModel<>();
+        taskList = new JList<>(taskListModel);
+        taskList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(taskList);
+
+        frame.add(taskInput, BorderLayout.NORTH);
+        frame.add(scrollPane, BorderLayout.CENTER);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> addTask());
+        taskInput.addActionListener(e -> addTask());
+
+        deleteButton.addActionListener(e -> deleteTask());
+
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    private void addTask() {
+        String task = taskInput.getText().trim();
+        if (!task.isEmpty()) {
+            taskListModel.addElement(task);
+            taskInput.setText("");
+        } else {
+            JOptionPane.showMessageDialog(null, "Please enter a task.");
+        }
+    }
+
+    private void deleteTask() {
+        int selectedIndex = taskList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            taskListModel.remove(selectedIndex);
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select a task to delete.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(TodoListApp::new);
+    }
+}
