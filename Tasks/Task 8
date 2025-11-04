@@ -1,0 +1,40 @@
+import java.util.*;
+
+class Question {
+    String question;
+    List<String> options;
+    int correctOption;
+
+    Question(String question, List<String> options, int correctOption) {
+        this.question = question;
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+}
+
+public class OnlineQuizApp {
+    public static void main(String[] args) {
+        List<Question> quiz = List.of(
+                new Question("What is the capital of France?", List.of("1. Berlin", "2. Madrid", "3. Paris", "4. Rome"), 3),
+                new Question("Which language runs in a web browser?", List.of("1. Java", "2. C", "3. Python", "4. JavaScript"), 4),
+                new Question("Who developed Java?", List.of("1. James Gosling", "2. Dennis Ritchie", "3. Bjarne Stroustrup", "4. Guido van Rossum"), 1),
+                new Question("Which company owns GitHub?", List.of("1. Google", "2. Microsoft", "3. Amazon", "4. Meta"), 2),
+                new Question("Which keyword is used to inherit a class in Java?", List.of("1. implement", "2. extends", "3. inherits", "4. superclass"), 2)
+        );
+
+        Scanner sc = new Scanner(System.in);
+        int score = 0;
+
+        for (int i = 0; i < quiz.size(); i++) {
+            Question q = quiz.get(i);
+            System.out.println("\nQuestion " + (i + 1) + ": " + q.question);
+            for (String option : q.options) System.out.println(option);
+            System.out.print("Your answer: ");
+            int answer = sc.nextInt();
+            if (answer == q.correctOption) score++;
+        }
+
+        System.out.println("\nQuiz Completed!");
+        System.out.println("Your Score: " + score + "/" + quiz.size());
+    }
+}
